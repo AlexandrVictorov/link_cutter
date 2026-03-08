@@ -1,23 +1,14 @@
 from sqlalchemy import MetaData, Table, Column, Integer, String, TIMESTAMP, ForeignKey, JSON, Boolean
 from datetime import datetime
+from database import Base
 
-metadata = MetaData()
 
-role = Table(
-    "role",
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("name", String, nullable=False),
-    Column("permissions", JSON),
-)
-
-user = Table(
-    "user",
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("email", String, nullable=False),
-    Column("username", String, nullable=False),
-    Column("hashed_password", String, nullable=False),
-    Column("registered_at", TIMESTAMP, default=datetime.utcnow),
-    Column("role_id", Integer, ForeignKey('role.id')),
-)
+class Link(Base):
+    __tablename__ = "link"
+    id = Column(Integer, primary_key=True)
+    original_url = Column(String, nullable=False)
+    short_code = Column(String, unique=True, index=True, nullable=False)
+    created_at = Column(TIMESTAMP, default=datetime.now)
+    last_used_at = Column(TIMESTAMP, nullable=True)
+    click_count = Column(Integer, default=0) # сколько раз вызывали метод redirect
+    expires_at = Column(TIMESTAMP, nullable=True)
