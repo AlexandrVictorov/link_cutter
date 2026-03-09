@@ -1,14 +1,13 @@
 version: '3.8'
 
 services:
-  # 1. Твое приложение на FastAPI
   app:
     build: .
     container_name: link_cutter_app
     ports:
       - "8000:8000"
     env_file:
-      - .env  # Подтягиваем переменные окружения
+      - .env  
     depends_on:
       db:
         condition: service_healthy
