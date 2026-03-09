@@ -16,7 +16,7 @@ services:
     # Эта команда сначала накатывает миграции в БД, а потом запускает сервер
     command: >
       sh -c "alembic upgrade head && 
-             uvicorn main:app --host 0.0.0.0 --port 8000"
+             uvicorn src.main:app --host 0.0.0.0 --port 8000"
     restart: always
 
   # 2. База данных PostgreSQL
