@@ -3,9 +3,15 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from database import AsyncSessionLocal
 from src.routers.base_router import router as base
-from src.routers.new_router import router as custom
-from src.services.database_service import delete_expired_links
+from src.routers.live_router import router as live
+from src.services.database_service import delete_expired_links, cleanup_inactive_links
 import logging
+from src.auth.auth import fastapi_users, auth_backend
+from models.schemas import UserRead, UserCreate
+from fastapi import Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +24,11 @@ async def cleanup_task():
                 deleted_count = await delete_expired_links(session)
                 if deleted_count > 0:
                     logger.info(f"Удалено устаревших ссылок: {deleted_count}")
+
+                deleted_count = await cleanup_inactive_links(session)
+                if deleted_count > 0:
+                    logger.info(f"Удалено неактивных ссылок: {deleted_count}")
+
         except Exception as e:
             logger.error(f"Ошибка при удалении ссылок: {e}")
             
@@ -32,11 +43,23 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="link_cutter", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 app.include_router(base)
-app.include_router(custom)
+app.include_router(live)
+app.include_router(
+    fastapi_users.get_auth_router(auth_backend),
+    prefix="/auth/jwt",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_register_router(UserRead, UserCreate),
+    prefix="/auth",
+    tags=["auth"],
+)
 
 
 @app.get("/")
-async def hello():
-    return {"linc_cutter запущен!"}
+async def frontend(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})

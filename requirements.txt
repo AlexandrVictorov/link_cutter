@@ -7,3 +7,4 @@ fastapi-users[sqlalchemy]
 fastapi[all]
 uvicorn
 asyncpg
+redis

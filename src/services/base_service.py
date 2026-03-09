@@ -5,15 +5,16 @@ from fastapi import HTTPException
 from .database_service import get_by_code, create_link, update_link
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
+from database import redis_cache
 
 ALPHABET = string.ascii_letters + string.digits
 
-async def create_short_link(db: AsyncSession, url: str, length: int = 6) -> str: # функция генерации короткой ссылки устуновленной длины
+async def create_short_link(db: AsyncSession, url: str, length: int = 6, user_id: int = None) -> str: # функция генерации короткой ссылки устуновленной длины
     while True:
         short_code = ''.join(secrets.choice(ALPHABET) for _ in range(length))
         existing = await get_by_code(db, short_code=short_code)
         if existing is None:
-            await create_link(db, original_url=url, short_code=short_code)
+            await create_link(db, original_url=url, short_code=short_code, user_id=user_id)
             return short_code
 
 
@@ -25,6 +26,8 @@ async def redirect_to_origin(db: AsyncSession, short_url: str):
     link.click_count += 1 #увеличиваю счетчик переходов
     link.last_used_at = datetime.now() 
     await db.commit()
+    #кэширую запрос на 1 час (3600 сек)
+    await redis_cache.set(short_url, link.original_url, ex=3600)
 
     return RedirectResponse(
         url=link.original_url,
@@ -32,7 +35,14 @@ async def redirect_to_origin(db: AsyncSession, short_url: str):
     )
 
 
-async def put_new_link(db: AsyncSession, short_url: str):
+async def put_new_link(db: AsyncSession, short_url: str, user):
+    link = await get_by_code(db, short_code=short_url)
+    if not link:
+        raise HTTPException(status_code=404, detail="Link not found")
+        
+    if link.user_id != user.id:
+        raise HTTPException(status_code=403, detail="You can only edit your own links")
+
     while True:
         short_code = ''.join(secrets.choice(ALPHABET) for _ in range(len(short_url)))
         existing = await get_by_code(db, short_code=short_code)
@@ -41,10 +51,13 @@ async def put_new_link(db: AsyncSession, short_url: str):
             return short_code
         
 
-async def get_statistic(db: AsyncSession, short_url: str):
+async def get_statistic(db: AsyncSession, short_url: str, user):
     link = await get_by_code(db, short_code=short_url)
     if not link:
         raise HTTPException(status_code=404, detail="Short link not found")
+    
+    if link.user_id != user.id:
+        raise HTTPException(status_code=403, detail="You can only edit your own links")
     
     return {'Original_URL': link.original_url,
             'Created': link.created_at,

@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # 1. Твое приложение на FastAPI
+  app:
+    build: .
+    container_name: link_cutter_app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env  # Подтягиваем переменные окружения
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Эта команда сначала накатывает миграции в БД, а потом запускает сервер
+    command: >
+      sh -c "alembic upgrade head && 
+             uvicorn main:app --host 0.0.0.0 --port 8000"
+    restart: always
+
+  # 2. База данных PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: link_cutter_db
+    env_file:
+      - .env
+    # Передаем переменные, которые требует сам образ postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASS:-postgres}
+      POSTGRES_DB: ${DB_NAME:-link_cutter}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-link_cutter}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  # 3. Кэш Redis
+  redis:
+    image: redis:7-alpine
+    container_name: link_cutter_redis
+    ports:
+      - "6379:6379"
+    # Сохраняем кэш на диск, чтобы он не стирался при перезагрузке контейнера
+    command: ["redis-server", "--appendonly", "yes"] 
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:
