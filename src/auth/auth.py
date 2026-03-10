@@ -8,7 +8,7 @@ from config import SECRET_KEY
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(secret=SECRET_KEY, lifetime_seconds=3600)
 
-cookie_transport = CookieTransport(cookie_max_age=2592000, cookie_secure=False) # временно False пока тесты на http а не https
+cookie_transport = CookieTransport(cookie_max_age=2592000, cookie_secure=True) # временно False пока тесты на http а не https
 
 auth_backend = AuthenticationBackend(
     name="jwt",

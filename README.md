@@ -2,8 +2,7 @@
 
 Сервис для сокращения ссылок на FastAPI с авторизацией, пользовательскими alias, статистикой переходов и удалением ссылок по времени жизни.
 
-Для удобства тестирования и наглядности с помощью GPT накидал простую веб страницу: http://man-master.ru
-
+Для удобства тестирования и наглядности с помощью GPT накидал простую веб страницу: https://rurez.ru
 ## Основные возможности
 
 - Регистрация и авторизация пользователей
@@ -72,7 +71,7 @@ http://127.0.0.1:8000
 ### Регистрация
 
 ```bash
-curl -X POST http://man-master.ru/auth/register   -H "Content-Type: application/json"   -d '{
+curl -X POST https://rurez.ru/auth/register   -H "Content-Type: application/json"   -d '{
     "name": "Alex",
     "email": "alex@example.com",
     "password": "strongpassword"
@@ -82,7 +81,7 @@ curl -X POST http://man-master.ru/auth/register   -H "Content-Type: application/
 ### Авторизация
 
 ```bash
-curl -X POST http://man-master.ru/auth/login   -H "Content-Type: application/json"   -d '{
+curl -X POST https://rurez.ru/auth/login   -H "Content-Type: application/json"   -d '{
     "email": "alex@example.com",
     "password": "strongpassword"
   }'
@@ -91,7 +90,7 @@ curl -X POST http://man-master.ru/auth/login   -H "Content-Type: application/jso
 ### Создание короткой ссылки
 
 ```bash
-curl -X POST http://man-master.ru/links   -H "Content-Type: application/json"   -d '{
+curl -X POST https://rurez.ru/links   -H "Content-Type: application/json"   -d '{
     "original_url": "https://example.com/very/long/url",
     "alias": "my-link",
     "length": 6
@@ -101,13 +100,13 @@ curl -X POST http://man-master.ru/links   -H "Content-Type: application/json"   
 ### Статистика по ссылке
 
 ```bash
-curl http://man-master.ru/links/my-link/stats
+curl https://rurez.ru/links/my-link/stats
 ```
 
 ### Поиск по original URL
 
 ```bash
-curl "http://man-master.ru/links/search?original_url=https://example.com/very/long/url"
+curl "https://rurez.ru/links/search?original_url=https://example.com/very/long/url"
 ```
 
 ## База данных
@@ -124,5 +123,5 @@ curl "http://man-master.ru/links/search?original_url=https://example.com/very/lo
 У сервиса есть тестовый веб-интерфейс для проверки основных ручек.
 
 ```
-http://man-master.ru
+https://rurez.ru/
 ```
