@@ -50,7 +50,13 @@ function bindEvents() {
     document.getElementById("setNBtn").addEventListener("click", setGlobalN);
     document.getElementById("replaceBtn").addEventListener("click", replaceShortCode);
 
-    document.getElementById("forgotPasswordLink").addEventListener("click", (e) => {e.preventDefault();forgotPassword();});
+    const forgotLink = document.getElementById("forgotPasswordLink");
+    if (forgotLink) {
+        forgotLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            forgotPassword();
+        });
+    }
 
     const regReload = document.getElementById("regCaptchaReload");
     if (regReload) {
@@ -287,6 +293,7 @@ async function logoutUser() {
 }
 
 async function forgotPassword() {
+    console.log("forgotPassword clicked");
     const email = document.getElementById("loginEmail").value.trim();
     if (!email) {
         setStatus("authStatus", "Укажи email, на который зарегистрирован аккаунт.", "error");
