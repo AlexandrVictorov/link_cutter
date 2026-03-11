@@ -7,232 +7,254 @@
     <link rel="stylesheet" href="/static/index.css" />
 </head>
 <body>
-<div class="container">
-    <div class="hero">
-        <h1>Link Cutter</h1>
-        <p>Тестовый интерфейс для регистрации, входа и проверки ручек сервиса.</p>
+<div class="page-root">
+    <!-- Блок авторизации / регистрации (первая страница) -->
+    <div class="auth-wrapper">
+        <div class="container">
+            <div class="hero">
+                <h1>Link Cutter</h1>
+                <p>Тестовый интерфейс для регистрации, входа и проверки ручек сервиса.</p>
+            </div>
+
+            <section class="card">
+                <div id="authChip" class="auth-chip off">🔓 Не авторизован</div>
+                <h2>Аккаунт</h2>
+                <p class="subtext"></p>
+
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="registerTab">Регистрация</button>
+                    <button class="tab-btn" data-tab="loginTab">Авторизация</button>
+                </div>
+
+                <div id="registerTab" class="tab-content active">
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="regName">Имя</label>
+                            <input id="regName" type="text" placeholder="Alex" />
+                        </div>
+                        <div class="field">
+                            <label for="regEmail">Email</label>
+                            <input id="regEmail" type="email" placeholder="alex@example.com" />
+                        </div>
+                        <div class="field">
+                            <label for="regPassword">Пароль</label>
+                            <input id="regPassword" type="password" placeholder="Пароль для регистрации" />
+                        </div>
+                    </div>
+
+                    <!-- КАПЧА ДЛЯ РЕГИСТРАЦИИ -->
+                    <div class="captcha-block">
+                        <label class="captcha-label">Подтвердите, что вы не робот</label>
+                        <div class="captcha-row">
+                            <img id="regCaptchaImage" class="captcha-image" alt="captcha" />
+                            <button type="button" class="btn-secondary captcha-reload" id="regCaptchaReload">
+                                Обновить
+                            </button>
+                        </div>
+                        <input id="regCaptchaAnswer" type="text" placeholder="Введите символы с картинки" />
+                    </div>
+
+                    <div class="btn-row">
+                        <button class="btn-primary" id="registerBtn">Зарегистрироваться</button>
+                    </div>
+                </div>
+
+                <div id="loginTab" class="tab-content">
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="loginEmail">Email</label>
+                            <input id="loginEmail" type="email" placeholder="alex@example.com" />
+                        </div>
+                        <div class="field">
+                            <label for="loginPassword">Пароль</label>
+                            <input id="loginPassword" type="password" placeholder="Пароль" />
+                        </div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button class="btn-primary" id="loginBtn">Войти</button>
+                        <button class="btn-secondary" id="logoutBtn">Выйти</button>
+                    </div>
+                </div>
+
+                <div id="authStatus" class="status info">Здесь будет результат регистрации или входа.</div>
+            </section>
+        </div>
     </div>
 
-    <section class="card">
-        <div id="authChip" class="auth-chip off">🔓 Не авторизован</div>
-        <h2>Аккаунт</h2>
-        <p class="subtext"></p>
-
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="registerTab">Регистрация</button>
-            <button class="tab-btn" data-tab="loginTab">Авторизация</button>
-        </div>
-
-        <div id="registerTab" class="tab-content active">
-            <div class="field-grid">
-                <div class="field">
-                    <label for="regName">Имя</label>
-                    <input id="regName" type="text" placeholder="Alex" />
-                </div>
-                <div class="field">
-                    <label for="regEmail">Email</label>
-                    <input id="regEmail" type="email" placeholder="alex@example.com" />
-                </div>
-                <div class="field">
-                    <label for="regPassword">Пароль</label>
-                    <input id="regPassword" type="password" placeholder="Пароль для регистрации" />
-                </div>
-            </div>
-
-            <div class="btn-row">
-                <button class="btn-primary" id="registerBtn">Зарегистрироваться</button>
-            </div>
-        </div>
-
-        <div id="loginTab" class="tab-content">
-            <div class="field-grid">
-                <div class="field">
-                    <label for="loginEmail">Email</label>
-                    <input id="loginEmail" type="email" placeholder="alex@example.com" />
-                </div>
-                <div class="field">
-                    <label for="loginPassword">Пароль</label>
-                    <input id="loginPassword" type="password" placeholder="Пароль" />
-                </div>
-            </div>
-
-            <div class="btn-row">
-                <button class="btn-primary" id="loginBtn">Войти</button>
-                <button class="btn-secondary" id="logoutBtn">Выйти</button>
-            </div>
-        </div>
-
-        <div id="authStatus" class="status info">Здесь будет результат регистрации или входа.</div>
-    </section>
-
-    <section class="card">
-        <div class="carousel-header">
-            <div class="carousel-title-wrap">
-                <div class="carousel-title-row">
-                    <h2 id="carouselTitle">Создание короткой ссылки</h2>
-                    <div id="lockBadge" class="lock-badge open">🔓 Доступно без авторизации</div>
-                </div>
-                <p id="carouselDescription" class="subtext">
-                    Придумайте свою короткую ссылку или сервис сгенерирует ее сам.
-                </p>
-            </div>
-
-            <div class="carousel-nav">
-                <button class="nav-btn" id="prevSlideBtn" aria-label="Предыдущий слайд">←</button>
-                <button class="nav-btn" id="nextSlideBtn" aria-label="Следующий слайд">→</button>
-            </div>
-        </div>
-
-        <div class="meta-row">
-            <span id="methodPill" class="pill post">POST</span>
-            <span id="accessPill" class="pill public">PUBLIC</span>
-        </div>
-
-        <div id="slides">
-            <div class="slide active"
-                 data-title="Создание короткой ссылки"
-                 data-desc="Создает короткую ссылку, можно указать alias и expires_at."
-                 data-method="POST"
-                 data-private="false">
-                <div class="field-grid">
-                    <div class="field">
-                        <label for="createOriginalUrl">Оригинальный URL</label>
-                        <input id="createOriginalUrl" type="url" placeholder="https://example.com/very/long/url" />
+    <!-- ВТОРАЯ ЧАСТЬ: функционал сайта (показывается только после авторизации) -->
+    <div class="app-wrapper hidden" id="appWrapper">
+        <div class="container">
+            <section class="card">
+                <div class="carousel-header">
+                    <div class="carousel-title-wrap">
+                        <div class="carousel-title-row">
+                            <h2 id="carouselTitle">Создание короткой ссылки</h2>
+                            <div id="lockBadge" class="lock-badge closed">🔒 Авторизуйтесь</div>
+                        </div>
+                        <p id="carouselDescription" class="subtext">
+                            Придумайте свою короткую ссылку или сервис сгенерирует ее сам.
+                        </p>
                     </div>
 
-                    <div class="row">
-                        <div class="field">
-                            <label for="createAlias">Ваш короткий код (Alias), необязательно</label>
-                            <input id="createAlias" type="text" placeholder="my-link" />
+                    <div class="carousel-nav">
+                        <button class="nav-btn" id="prevSlideBtn" aria-label="Предыдущий слайд">←</button>
+                        <button class="nav-btn" id="nextSlideBtn" aria-label="Следующий слайд">→</button>
+                    </div>
+                </div>
+
+                <div class="meta-row">
+                    <span id="methodPill" class="pill post">POST</span>
+                    <span id="accessPill" class="pill private">PRIVATE</span>
+                </div>
+
+                <div id="slides">
+                    <div class="slide active"
+                         data-title="Создание короткой ссылки"
+                         data-desc="Создает короткую ссылку, можно указать alias и expires_at."
+                         data-method="POST"
+                         data-private="true">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="createOriginalUrl">Оригинальный URL</label>
+                                <input id="createOriginalUrl" type="url" placeholder="https://example.com/very/long/url" />
+                            </div>
+
+                            <div class="row">
+                                <div class="field">
+                                    <label for="createAlias">Ваш короткий код (Alias), необязательно</label>
+                                    <input id="createAlias" type="text" placeholder="my-link" />
+                                </div>
+                                <div class="field">
+                                    <label for="createLength">Длина кода для генерации</label>
+                                    <input id="createLength" type="number" min="2" max="20" value="6" />
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label for="createExpiresAt">Дата удаления, необязательно</label>
+                                <input id="createExpiresAt" type="datetime-local" />
+                            </div>
                         </div>
-                        <div class="field">
-                            <label for="createLength">Длина кода для генерации</label>
-                            <input id="createLength" type="number" min="2" max="20" value="6" />
+
+                        <div class="btn-row">
+                            <button class="btn-primary protected-btn" id="createBtn">Создать ссылку</button>
+                        </div>
+
+                        <div id="createdLinkCard" class="created-link-card hidden">
+                            <div class="created-link-label">Ваша короткая ссылка</div>
+                            <a id="createdLinkAnchor" class="created-link-anchor" href="#" target="_blank"></a>
+                            <button id="copyLinkBtn" class="btn-secondary copy-btn" type="button">Скопировать</button>
                         </div>
                     </div>
 
-                    <div class="field">
-                        <label for="createExpiresAt">Дата удаления, необязательно</label>
-                        <input id="createExpiresAt" type="datetime-local" />
-                    </div>
-                </div>
-
-                <div class="btn-row">
-                    <button class="btn-primary" id="createBtn">Создать ссылку</button>
-                </div>
-
-                <div id="createdLinkCard" class="created-link-card hidden">
-                    <div class="created-link-label">Ваша короткая ссылка</div>
-                    <a id="createdLinkAnchor" class="created-link-anchor" href="#" target="_blank"></a>
-                    <button id="copyLinkBtn" class="btn-secondary copy-btn" type="button">Скопировать</button>
-                </div>
-            </div>
-
-            <div class="slide"
-                 data-title="Статистика по короткой ссылке"
-                 data-desc="Показывает original_url, дату создания, число переходов и дату последнего использования."
-                 data-method="GET"
-                 data-private="true">
-                <div class="field-grid">
-                    <div class="field">
-                        <label for="statsShortCode">Short code</label>
-                        <input id="statsShortCode" type="text" placeholder="my-link" />
-                    </div>
-                </div>
-                <div class="btn-row">
-                    <button class="btn-primary protected-btn" id="statsBtn">Получить статистику</button>
-                </div>
-            </div>
-
-            <div class="slide"
-                 data-title="Поиск по оригинальному URL"
-                 data-desc="Ищет короткие ссылки, связанные с указанным original_url."
-                 data-method="GET"
-                 data-private="false">
-                <div class="field-grid">
-                    <div class="field">
-                        <label for="searchOriginalUrl">Original URL</label>
-                        <input id="searchOriginalUrl" type="url" placeholder="https://example.com/" />
-                    </div>
-                </div>
-                <div class="btn-row">
-                    <button class="btn-primary" id="searchBtn">Найти ссылки</button>
-                </div>
-            </div>
-
-            <div class="slide"
-                 data-title="Удаление короткой ссылки"
-                 data-desc="Удаляет ссылку. Доступно только авторизованному пользователю."
-                 data-method="DELETE"
-                 data-private="true">
-                <div class="field-grid">
-                    <div class="field">
-                        <label for="deleteShortCode">Short code</label>
-                        <input id="deleteShortCode" type="text" placeholder="my-link" />
-                    </div>
-                </div>
-                <div class="btn-row">
-                    <button class="btn-danger protected-btn" id="deleteBtn">Удалить ссылку</button>
-                </div>
-            </div>
-
-            <div class="slide"
-                 data-title="Назначение времени удаления"
-                 data-desc="Назначает expires_at для конкретной короткой ссылки."
-                 data-method="POST"
-                 data-private="true">
-                <div class="field-grid">
-                    <div class="row">
-                        <div class="field">
-                            <label for="liveAlias">Alias / short code</label>
-                            <input id="liveAlias" type="text" placeholder="my-link" />
+                    <div class="slide"
+                         data-title="Статистика по короткой ссылке"
+                         data-desc="Показывает original_url, дату создания, число переходов и дату последнего использования."
+                         data-method="GET"
+                         data-private="true">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="statsShortCode">Short code</label>
+                                <input id="statsShortCode" type="text" placeholder="my-link" />
+                            </div>
                         </div>
-                        <div class="field">
-                            <label for="liveExpiresAt">Дата удаления</label>
-                            <input id="liveExpiresAt" type="datetime-local" />
+                        <div class="btn-row">
+                            <button class="btn-primary protected-btn" id="statsBtn">Получить статистику</button>
                         </div>
                     </div>
-                </div>
-                <div class="btn-row">
-                    <button class="btn-primary protected-btn" id="liveBtn">Назначить время удаления</button>
-                </div>
-            </div>
 
-            <div class="slide"
-                 data-title="Назначение N дней"
-                 data-desc="Устанавливает общее число дней неактивности для удаления ссылок (доступно только для superuser)."
-                 data-method="POST"
-                 data-private="true">
-                <div class="field-grid">
-                    <div class="field">
-                        <label for="setNValue">Количество дней N</label>
-                        <input id="setNValue" type="number" min="1" value="30" />
+                    <div class="slide"
+                         data-title="Поиск по оригинальному URL"
+                         data-desc="Ищет короткие ссылки, связанные с указанным original_url."
+                         data-method="GET"
+                         data-private="true">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="searchOriginalUrl">Original URL</label>
+                                <input id="searchOriginalUrl" type="url" placeholder="https://example.com/" />
+                            </div>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn-primary protected-btn" id="searchBtn">Найти ссылки</button>
+                        </div>
+                    </div>
+
+                    <div class="slide"
+                         data-title="Удаление короткой ссылки"
+                         data-desc="Удаляет ссылку. Доступно только авторизованному пользователю."
+                         data-method="DELETE"
+                         data-private="true">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="deleteShortCode">Short code</label>
+                                <input id="deleteShortCode" type="text" placeholder="my-link" />
+                            </div>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn-danger protected-btn" id="deleteBtn">Удалить ссылку</button>
+                        </div>
+                    </div>
+
+                    <div class="slide"
+                         data-title="Назначение времени удаления"
+                         data-desc="Назначает expires_at для конкретной короткой ссылки."
+                         data-method="POST"
+                         data-private="true">
+                        <div class="field-grid">
+                            <div class="row">
+                                <div class="field">
+                                    <label for="liveAlias">Alias / short code</label>
+                                    <input id="liveAlias" type="text" placeholder="my-link" />
+                                </div>
+                                <div class="field">
+                                    <label for="liveExpiresAt">Дата удаления</label>
+                                    <input id="liveExpiresAt" type="datetime-local" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn-primary protected-btn" id="liveBtn">Назначить время удаления</button>
+                        </div>
+                    </div>
+
+                    <div class="slide"
+                         data-title="Назначение N дней"
+                         data-desc="Устанавливает общее число дней неактивности для удаления ссылок (доступно только для superuser)."
+                         data-method="POST"
+                         data-private="true">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="setNValue">Количество дней N</label>
+                                <input id="setNValue" type="number" min="1" value="30" />
+                            </div>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn-primary protected-btn" id="setNBtn">Установить N</button>
+                        </div>
+                    </div>
+
+                    <div class="slide"
+                         data-title="Замена короткой ссылки"
+                         data-desc="Меняет short_code на новый для существующей ссылки."
+                         data-method="PUT"
+                         data-private="true">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="replaceShortCode">Текущий short code</label>
+                                <input id="replaceShortCode" type="text" placeholder="my-link" />
+                            </div>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn-primary protected-btn" id="replaceBtn">Заменить short code</button>
+                        </div>
                     </div>
                 </div>
-                <div class="btn-row">
-                    <button class="btn-primary protected-btn" id="setNBtn">Установить N</button>
-                </div>
-            </div>
 
-            <div class="slide"
-                 data-title="Замена короткой ссылки"
-                 data-desc="Меняет short_code на новый для существующей ссылки."
-                 data-method="PUT"
-                 data-private="true">
-                <div class="field-grid">
-                    <div class="field">
-                        <label for="replaceShortCode">Текущий short code</label>
-                        <input id="replaceShortCode" type="text" placeholder="my-link" />
-                    </div>
-                </div>
-                <div class="btn-row">
-                    <button class="btn-primary protected-btn" id="replaceBtn">Заменить short code</button>
-                </div>
-            </div>
+                <div id="apiStatus" class="status info">Здесь будет результат запросов к ручкам.</div>
+            </section>
         </div>
-
-        <div id="apiStatus" class="status info">Здесь будет результат запросов к ручкам.</div>
-    </section>
+    </div>
 </div>
 
 <script src="/static/index.js"></script>

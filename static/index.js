@@ -2,6 +2,8 @@
 let isAuthorized = false;
 let currentSlide = 0;
 
+let regCaptchaId = null;
+
 const slides = () => Array.from(document.querySelectorAll(".slide"));
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -9,7 +11,28 @@ document.addEventListener("DOMContentLoaded", () => {
     bindTabs();
     updateProtectedButtons();
     updateCarousel();
+    loadRegisterCaptcha();
 });
+
+// ---------------------- КАПЧА ----------------------
+
+async function loadRegisterCaptcha() {
+    try {
+        const response = await fetch("/captcha", { method: "GET" });
+        const blob = await response.blob();
+        regCaptchaId = response.headers.get("X-Captcha-Id");
+
+        const url = URL.createObjectURL(blob);
+        const img = document.getElementById("regCaptchaImage");
+        if (img) {
+            img.src = url;
+        }
+    } catch (e) {
+        console.error("Ошибка загрузки капчи", e);
+    }
+}
+
+// ---------------------- BINDINGS ----------------------
 
 function bindEvents() {
     document.getElementById("registerBtn").addEventListener("click", registerUser);
@@ -26,6 +49,14 @@ function bindEvents() {
     document.getElementById("liveBtn").addEventListener("click", setLifetime);
     document.getElementById("setNBtn").addEventListener("click", setGlobalN);
     document.getElementById("replaceBtn").addEventListener("click", replaceShortCode);
+
+    const regReload = document.getElementById("regCaptchaReload");
+    if (regReload) {
+        regReload.addEventListener("click", (e) => {
+            e.preventDefault();
+            loadRegisterCaptcha();
+        });
+    }
 }
 
 function bindTabs() {
@@ -42,6 +73,8 @@ function bindTabs() {
         });
     });
 }
+
+// ---------------------- UI HELPERS ----------------------
 
 function setStatus(targetId, message, type = "info") {
     const el = document.getElementById(targetId);
@@ -69,13 +102,18 @@ async function safeJson(response) {
 function setAuthState(state) {
     isAuthorized = state;
     const chip = document.getElementById("authChip");
+    const appWrapper = document.getElementById("appWrapper");
+
     if (state) {
         chip.textContent = "🔐 Авторизован";
         chip.className = "auth-chip on";
+        if (appWrapper) appWrapper.classList.remove("hidden");
     } else {
         chip.textContent = "🔓 Не авторизован";
         chip.className = "auth-chip off";
+        if (appWrapper) appWrapper.classList.add("hidden");
     }
+
     updateProtectedButtons();
     updateCarousel();
 }
@@ -122,10 +160,7 @@ function updateCarousel() {
     accessPill.className = `pill ${isPrivate ? "private" : "public"}`;
 
     const lockBadge = document.getElementById("lockBadge");
-    if (!isPrivate) {
-        lockBadge.textContent = "🔓 Доступно без авторизации";
-        lockBadge.className = "lock-badge open";
-    } else if (isAuthorized) {
+    if (isAuthorized) {
         lockBadge.textContent = "🔐 Доступно после входа";
         lockBadge.className = "lock-badge open";
     } else {
@@ -146,13 +181,21 @@ function nextSlide() {
     updateCarousel();
 }
 
+// ---------------------- AUTH ----------------------
+
 async function registerUser() {
     const email = document.getElementById("regEmail").value.trim();
     const username = document.getElementById("regName").value.trim();
     const password = document.getElementById("regPassword").value.trim();
+    const captcha_answer = document.getElementById("regCaptchaAnswer").value.trim();
 
     if (!email || !username || !password) {
         setStatus("authStatus", "Заполни имя, email и пароль.", "error");
+        return;
+    }
+
+    if (!regCaptchaId || !captcha_answer) {
+        setStatus("authStatus", "Заполни капчу.", "error");
         return;
     }
 
@@ -160,7 +203,13 @@ async function registerUser() {
         const response = await fetch("/auth/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password, username })
+            body: JSON.stringify({
+                email,
+                password,
+                username,
+                captcha_id: regCaptchaId,
+                captcha_answer
+            })
         });
 
         const data = await safeJson(response);
@@ -168,11 +217,15 @@ async function registerUser() {
         if (response.ok) {
             setStatus("authStatus", "Регистрация прошла успешно. Теперь перейди во вкладку 'Авторизация'.", "success");
             document.getElementById("loginEmail").value = email;
+            document.getElementById("regCaptchaAnswer").value = "";
+            loadRegisterCaptcha();
         } else {
             setStatus("authStatus", normalizeErrorText(data), "error");
+            loadRegisterCaptcha();
         }
     } catch (e) {
         setStatus("authStatus", `Ошибка соединения: ${e.message}`, "error");
+        loadRegisterCaptcha();
     }
 }
 
@@ -230,6 +283,8 @@ async function logoutUser() {
         setStatus("authStatus", `Ошибка соединения: ${e.message}`, "error");
     }
 }
+
+// ---------------------- API CALLS ----------------------
 
 async function createShortLink() {
     const original_url = document.getElementById("createOriginalUrl").value.trim();

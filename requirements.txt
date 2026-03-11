@@ -8,3 +8,4 @@ fastapi[all]
 uvicorn
 asyncpg
 redis
+fast_captcha

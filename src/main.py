@@ -12,6 +12,8 @@ from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from src.routers.captcha import router as captcha 
+from src.routers.auth_router import router as auth_router
 
 logger = logging.getLogger(__name__)
 
@@ -53,12 +55,8 @@ app.include_router(
     prefix="/auth/jwt",
     tags=["auth"],
 )
-app.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/auth",
-    tags=["auth"],
-)
-
+app.include_router(auth_router)
+app.include_router(captcha)
 
 @app.get("/")
 async def frontend(request: Request):

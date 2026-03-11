@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from .database_service import get_by_code, create_link, update_link
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
+from src.routers.captcha import redis_client
 
 async def create_custom_link(db: AsyncSession, url: str, alias: str, user_id):
         
@@ -26,3 +27,13 @@ async def set_livetime(db: AsyncSession, alias: str, expire_at: datetime, user):
       link.expires_at = expire_at.replace(tzinfo=None)
       await db.commit()
       return True
+
+
+async def verify_captcha(captcha_id: str, answer: str):
+    key = f"captcha:{captcha_id}"
+    real = await redis_client.get(key)
+    if not real:
+        raise HTTPException(status_code=400, detail="Captcha expired")
+    await redis_client.delete(key)
+    if real != answer.lower():
+        raise HTTPException(status_code=400, detail="Wrong captcha")

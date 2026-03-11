@@ -22,6 +22,23 @@ body {
     color: var(--text);
 }
 
+/* Две «страницы»: auth сверху, функционал ниже */
+.page-root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.auth-wrapper {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+    background: transparent;
+}
+
+.app-wrapper {
+    background: transparent;
+}
+
 .container {
     width: min(100%, 980px);
     margin: 0 auto;
@@ -378,4 +395,35 @@ button {
 
 .hidden {
     display: none;
+}
+
+/* Капча на регистрации */
+
+.captcha-block {
+    margin-top: 12px;
+    display: grid;
+    gap: 8px;
+}
+
+.captcha-label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.captcha-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.captcha-image {
+    height: 60px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+}
+
+.captcha-reload {
+    white-space: nowrap;
 }

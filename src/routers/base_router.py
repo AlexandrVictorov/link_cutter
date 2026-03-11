@@ -21,11 +21,12 @@ GET /links/{short_code}/stats - Отображает оригинальный UR
 
 router = APIRouter()
 
+
 @router.post("/links/shorten")
-async def create(request: Request, body: LinkCreateRequest, db: AsyncSession = Depends(get_db), user: User = Depends(current_optional_user)):
+async def create(request: Request, body: LinkCreateRequest, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
     url = str(body.original_url)
     alias = body.alias
-    user_id = user.id if user else None
+    user_id = user.id
 
     if not alias:
         length = getattr(body, 'length', 6) 

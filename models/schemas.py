@@ -29,3 +29,8 @@ class UserUpdate(schemas.BaseUserUpdate):
     username: Optional[str] = None
     #role_id: Optional[int] = None
 
+
+class CaptchaMixin(BaseModel):
+    captcha_id: str
+    captcha_answer: str
+
