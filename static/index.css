@@ -200,6 +200,12 @@ button {
     text-decoration: none;
 }
 
+.forgot-row {
+    margin-top: 12px;          
+    text-align: center;         /* по желанию — прижать вправо */
+}
+
+
 
 .status {
     margin-top: 16px;
