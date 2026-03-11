@@ -2,7 +2,7 @@
 
 Сервис для сокращения ссылок на FastAPI с авторизацией, пользовательскими alias, статистикой переходов и удалением ссылок по времени жизни.
 
-Для удобства тестирования и наглядности с помощью GPT накидал простую веб страницу: https://rurez.ru
+Для удобства тестирования и наглядности с помощью GPT накидал простую веб страницу: https://www.scraftil.ru/
 ## Основные возможности
 
 - Регистрация и авторизация пользователей
@@ -71,7 +71,7 @@ http://127.0.0.1:8000
 ### Регистрация
 
 ```bash
-curl -X POST https://rurez.ru/auth/register   -H "Content-Type: application/json"   -d '{
+curl -X POST https://www.scraftil.ru/auth/register   -H "Content-Type: application/json"   -d '{
     "name": "Alex",
     "email": "alex@example.com",
     "password": "strongpassword"
@@ -81,7 +81,7 @@ curl -X POST https://rurez.ru/auth/register   -H "Content-Type: application/json
 ### Авторизация
 
 ```bash
-curl -X POST https://rurez.ru/auth/login   -H "Content-Type: application/json"   -d '{
+curl -X POST https://www.scraftil.ru/auth/login   -H "Content-Type: application/json"   -d '{
     "email": "alex@example.com",
     "password": "strongpassword"
   }'
@@ -90,7 +90,7 @@ curl -X POST https://rurez.ru/auth/login   -H "Content-Type: application/json"  
 ### Создание короткой ссылки
 
 ```bash
-curl -X POST https://rurez.ru/links   -H "Content-Type: application/json"   -d '{
+curl -X POST https://www.scraftil.ru/links   -H "Content-Type: application/json"   -d '{
     "original_url": "https://example.com/very/long/url",
     "alias": "my-link",
     "length": 6
@@ -100,16 +100,18 @@ curl -X POST https://rurez.ru/links   -H "Content-Type: application/json"   -d '
 ### Статистика по ссылке
 
 ```bash
-curl https://rurez.ru/links/my-link/stats
+curl https://www.scraftil.ru/links/my-link/stats
 ```
 
 ### Поиск по original URL
 
 ```bash
-curl "https://rurez.ru/links/search?original_url=https://example.com/very/long/url"
+curl "https://www.scraftil.ru/links/search?original_url=https://example.com/very/long/url"
 ```
 
 ## База данных
+
+Дополнительно есть эндпоинты для каптчи и сброса пароля по email.
 
 Проект использует PostgreSQL.
 
@@ -123,5 +125,5 @@ curl "https://rurez.ru/links/search?original_url=https://example.com/very/long/u
 У сервиса есть тестовый веб-интерфейс для проверки основных ручек.
 
 ```
-https://rurez.ru/
+https://www.scraftil.ru/
 ```

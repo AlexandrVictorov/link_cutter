@@ -57,6 +57,11 @@ app.include_router(
 )
 app.include_router(auth_router)
 app.include_router(captcha)
+app.include_router(
+    fastapi_users.get_reset_password_router(),
+    prefix="/auth",
+    tags=["auth"],
+)
 
 @app.get("/")
 async def frontend(request: Request):

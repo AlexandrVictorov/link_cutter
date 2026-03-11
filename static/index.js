@@ -50,6 +50,8 @@ function bindEvents() {
     document.getElementById("setNBtn").addEventListener("click", setGlobalN);
     document.getElementById("replaceBtn").addEventListener("click", replaceShortCode);
 
+    document.getElementById("forgotPasswordBtn").addEventListener("click", forgotPassword);
+
     const regReload = document.getElementById("regCaptchaReload");
     if (regReload) {
         regReload.addEventListener("click", (e) => {
@@ -283,6 +285,38 @@ async function logoutUser() {
         setStatus("authStatus", `Ошибка соединения: ${e.message}`, "error");
     }
 }
+
+async function forgotPassword() {
+    const email = document.getElementById("loginEmail").value.trim();
+    if (!email) {
+        setStatus("authStatus", "Укажи email, на который зарегистрирован аккаунт.", "error");
+        return;
+    }
+
+    try {
+        const response = await fetch("/auth/forgot-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+
+        // FastAPI Users всегда отвечает «успешно отправлено» или 202,
+        // даже если такого email нет — это нормально.
+        if (response.ok) {
+            setStatus(
+                "authStatus",
+                "Если такой email зарегистрирован, мы отправили письмо с ссылкой для смены пароля.",
+                "success"
+            );
+        } else {
+            const data = await safeJson(response);
+            setStatus("authStatus", normalizeErrorText(data), "error");
+        }
+    } catch (e) {
+        setStatus("authStatus", `Ошибка соединения: ${e.message}`, "error");
+    }
+}
+
 
 // ---------------------- API CALLS ----------------------
 
