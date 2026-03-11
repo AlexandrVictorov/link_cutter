@@ -50,7 +50,7 @@ function bindEvents() {
     document.getElementById("setNBtn").addEventListener("click", setGlobalN);
     document.getElementById("replaceBtn").addEventListener("click", replaceShortCode);
 
-    document.getElementById("forgotPasswordBtn").addEventListener("click", forgotPassword);
+    document.getElementById("forgotPasswordLink").addEventListener("click", (e) => {e.preventDefault();forgotPassword();});
 
     const regReload = document.getElementById("regCaptchaReload");
     if (regReload) {

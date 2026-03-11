@@ -8,8 +8,7 @@ from models.schemas import LinkCreateRequest
 from models.models import User
 from src.auth.auth import current_optional_user, current_active_user
 from database import get_db, redis_cache
-import datetime
-
+from datetime import datetime
 """
 Создание / удаление / изменение / получение информации по короткой ссылке:
 POST /links/shorten – создает короткую ссылку или кастомную ссылку, если указан параметр alias
@@ -51,6 +50,8 @@ async def redirect(short_code: str, db: AsyncSession = Depends(get_db)):
     cached_url = await redis_cache.get(short_code)
     if cached_url:
         link = await get_by_code(db, short_code) # в целом запрос быстрый, думаю пока можно оставить
+        if not link:
+            raise HTTPException(status_code=404, detail="Link not found")
         link.click_count += 1 #увеличиваю счетчик переходов
         link.last_used_at = datetime.now() 
         await db.commit()
