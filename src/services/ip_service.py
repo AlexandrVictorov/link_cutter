@@ -2,7 +2,7 @@ import geoip2.database
 from fastapi import Request
 
 # открыть БД один раз при старте приложения
-GEOIP_READER = geoip2.database.Reader("GeoLite2-City.mmdb")
+GEOIP_READER = geoip2.database.Reader("src/services/GeoLite2-City.mmdb")
 
 def get_geo_by_ip(ip: str) -> dict | None:
     try:
