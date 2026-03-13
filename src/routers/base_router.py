@@ -57,7 +57,7 @@ async def redirect(request: Request, short_code: str, db: AsyncSession = Depends
 
     ip = get_client_ip(request)
     geo = get_geo_by_ip(ip)  
-    referer = request.headers.get("referer")
+    referrer = request.headers.get("referer")
     device = get_device_type(request)
 
     click = Link_click(
@@ -65,7 +65,7 @@ async def redirect(request: Request, short_code: str, db: AsyncSession = Depends
         client_ip=ip,
         country=geo["country"] if geo else None,
         city=geo["city"] if geo else None,
-        referer = referer if referer else None,
+        referrer = referrer if referrer else None,
         device = device if device else None
     )
     db.add(click)
