@@ -48,38 +48,38 @@ async def create(request: Request, body: LinkCreateRequest, db: AsyncSession = D
     
 @router.get("/links/{short_code}")
 async def redirect(request: Request, short_code: str, db: AsyncSession = Depends(get_db)):
-       
-    link = await get_by_code(db, short_code)  # в целом запрос быстрый, думаю пока можно оставить
+    link = await get_by_code(db, short_code)
     if not link:
-            raise HTTPException(status_code=404, detail="Link not found")
-    link.click_count += 1 #увеличиваю счетчик переходов
-    link.last_used_at = datetime.now() 
+        raise HTTPException(status_code=404, detail="Link not found")
 
-    ip = get_client_ip(request)
-    geo = get_geo_by_ip(ip)  
-    referrer = request.headers.get("referer")
-    device = get_device_type(request)
+    try:
+        link.click_count += 1
+        link.last_used_at = datetime.now()
 
-    click = Link_click(
-        link_id=link.id,
-        client_ip=ip,
-        country=geo["country"] if geo else None,
-        city=geo["city"] if geo else None,
-        referrer = referrer if referrer else None,
-        device = device if device else None
-    )
-    db.add(click)
+        ip = get_client_ip(request)
+        geo = get_geo_by_ip(ip)
+        referrer = request.headers.get("referer")
+        device = get_device_type(request)
 
-    await db.commit()
-    await db.refresh(link)
+        click = Link_click(
+            link_id=link.id,
+            client_ip=ip,
+            country=geo["country"] if geo else None,
+            city=geo["city"] if geo else None,
+            referrer=referrer if referrer else None,
+            device=device if device else None
+        )
+        db.add(click)
+        await db.commit()
+    except Exception as e:
+        await db.rollback()
+        print("Click analytics error:", e)
 
-    # СНАЧАЛА ИЩЕМ В КЭШЕ REDIS
     cached_url = await redis_cache.get(short_code)
     if cached_url:
-        return RedirectResponse(cached_url)
+        return RedirectResponse(cached_url, status_code=307)
 
     return await redirect_to_origin(db, short_code, link)
-
 
 @router.delete("/links/{short_code}")
 async def delete(short_code: str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):

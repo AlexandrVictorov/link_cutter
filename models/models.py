@@ -33,7 +33,7 @@ class Link_click(Base):
     id = Column(Integer, primary_key=True)
     link_id = Column(Integer, ForeignKey("link.id"), nullable=False)
     date = Column(TIMESTAMP, default=datetime.now)
-    client_ip = Column(Integer, nullable=True)
+    client_ip = Column(String, nullable=True)
     country = Column(String, nullable=True)
     city = Column(String, nullable=True)
     referrer = Column(String, nullable=True) # ресурс откуда был клик
