@@ -51,7 +51,7 @@ async def redirect(request: Request, short_code: str, db: AsyncSession = Depends
     link = await get_by_code(db, short_code)
     if not link:
         raise HTTPException(status_code=404, detail="Link not found")
-
+    
     try:
         link.click_count += 1
         link.last_used_at = datetime.now()
