@@ -1,8 +1,12 @@
 // сгенерировано с помощью GPT-5.2 для более наглядного тестирования сервиса и просто для красоты)
 let isAuthorized = false;
 let currentSlide = 0;
-
 let regCaptchaId = null;
+
+let statsDailyChartInstance = null;
+let countryChartInstance = null;
+let cityChartInstance = null;
+let deviceChartInstance = null;
 
 const slides = () => Array.from(document.querySelectorAll(".slide"));
 
@@ -12,9 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
     updateProtectedButtons();
     updateCarousel();
     loadRegisterCaptcha();
+    initAdvancedAnalyticsDefaults();
 });
-
-// ---------------------- КАПЧА ----------------------
 
 async function loadRegisterCaptcha() {
     try {
@@ -24,15 +27,11 @@ async function loadRegisterCaptcha() {
 
         const url = URL.createObjectURL(blob);
         const img = document.getElementById("regCaptchaImage");
-        if (img) {
-            img.src = url;
-        }
+        if (img) img.src = url;
     } catch (e) {
         console.error("Ошибка загрузки капчи", e);
     }
 }
-
-// ---------------------- BINDINGS ----------------------
 
 function bindEvents() {
     document.getElementById("registerBtn").addEventListener("click", registerUser);
@@ -44,6 +43,7 @@ function bindEvents() {
 
     document.getElementById("createBtn").addEventListener("click", createShortLink);
     document.getElementById("statsBtn").addEventListener("click", getStats);
+    document.getElementById("advancedStatsBtn").addEventListener("click", getAdvancedStats);
     document.getElementById("searchBtn").addEventListener("click", searchLinks);
     document.getElementById("deleteBtn").addEventListener("click", deleteLink);
     document.getElementById("liveBtn").addEventListener("click", setLifetime);
@@ -81,8 +81,6 @@ function bindTabs() {
         });
     });
 }
-
-// ---------------------- UI HELPERS ----------------------
 
 function setStatus(targetId, message, type = "info") {
     const el = document.getElementById(targetId);
@@ -189,7 +187,204 @@ function nextSlide() {
     updateCarousel();
 }
 
-// ---------------------- AUTH ----------------------
+function initAdvancedAnalyticsDefaults() {
+    const dayInput = document.getElementById("advancedDay");
+    if (dayInput && !dayInput.value) {
+        dayInput.value = formatDateInput(new Date());
+    }
+}
+
+function formatDateInput(date) {
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, "0");
+    const day = `${date.getDate()}`.padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function formatDateTime(value) {
+    if (!value) return "—";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString("ru-RU");
+}
+
+function destroyChart(instance) {
+    if (instance) instance.destroy();
+    return null;
+}
+
+function normalizeChartItems(items, keyName) {
+    if (!Array.isArray(items)) return [];
+    return items.map(item => ({
+        label: item?.[keyName] || "Unknown",
+        value: Number(item?.clicks || 0)
+    }));
+}
+
+function renderBarChart(canvasId, chartRefName, items, datasetLabel, color) {
+    const normalized = normalizeChartItems(items, "label");
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    if (chartRefName === "country") countryChartInstance = destroyChart(countryChartInstance);
+    if (chartRefName === "city") cityChartInstance = destroyChart(cityChartInstance);
+    if (chartRefName === "device") deviceChartInstance = destroyChart(deviceChartInstance);
+
+    const labels = normalized.map(item => item.label);
+    const values = normalized.map(item => item.value);
+
+    const chart = new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                label: datasetLabel,
+                data: values,
+                backgroundColor: color,
+                borderRadius: 8,
+                maxBarThickness: 48
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
+        }
+    });
+
+    if (chartRefName === "country") countryChartInstance = chart;
+    if (chartRefName === "city") cityChartInstance = chart;
+    if (chartRefName === "device") deviceChartInstance = chart;
+}
+
+function renderDailyChart(items) {
+    const canvas = document.getElementById("statsDailyChart");
+    if (!canvas) return;
+
+    statsDailyChartInstance = destroyChart(statsDailyChartInstance);
+
+    const rows = Array.isArray(items) ? items : [];
+    const labels = rows.map(item => item.date || item.day || "");
+    const values = rows.map(item => Number(item.clicks || 0));
+
+    statsDailyChartInstance = new Chart(canvas, {
+        type: "line",
+        data: {
+            labels,
+            datasets: [{
+                label: "Клики",
+                data: values,
+                borderColor: "#2563eb",
+                backgroundColor: "rgba(37, 99, 235, 0.12)",
+                fill: true,
+                tension: 0.28,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
+        }
+    });
+}
+
+function renderReferrers(items) {
+    const list = document.getElementById("referrersList");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    if (!Array.isArray(items) || items.length === 0) {
+        const li = document.createElement("li");
+        li.className = "source-item";
+        li.textContent = "Нет данных по источникам переходов за выбранный день.";
+        list.appendChild(li);
+        return;
+    }
+
+    items.forEach(item => {
+        const li = document.createElement("li");
+        li.className = "source-item";
+
+        const name = document.createElement("span");
+        name.className = "source-name";
+        name.textContent = item.referrer || "Direct / None";
+
+        const count = document.createElement("span");
+        count.className = "source-count";
+        count.textContent = `${Number(item.clicks || 0)} кликов`;
+
+        li.appendChild(name);
+        li.appendChild(count);
+        list.appendChild(li);
+    });
+}
+
+function renderStatsSummary(data) {
+    const panel = document.getElementById("statsPanel");
+    const created = document.getElementById("statsCreated");
+    const clicks = document.getElementById("statsClicks");
+    const lastClick = document.getElementById("statsLastClick");
+    const originalUrl = document.getElementById("statsOriginalUrl");
+
+    created.textContent = formatDateTime(data?.Created);
+    clicks.textContent = Number(data?.Clicks ?? 0).toLocaleString("ru-RU");
+    lastClick.textContent = formatDateTime(data?.Last_click);
+
+    if (data?.Original_URL) {
+        originalUrl.textContent = data.Original_URL;
+        originalUrl.href = data.Original_URL;
+    } else {
+        originalUrl.textContent = "—";
+        originalUrl.href = "#";
+    }
+
+    panel.classList.remove("hidden");
+    renderDailyChart(data?.Clicks_by_day || []);
+}
+
+function renderAdvancedAnalytics(data) {
+    const panel = document.getElementById("advancedPanel");
+    panel.classList.remove("hidden");
+
+    const byCountry = (data?.by_country || []).map(item => ({
+        label: item.country || "Unknown",
+        clicks: item.clicks || 0
+    }));
+
+    const byCity = (data?.by_city || []).map(item => ({
+        label: item.city || "Unknown",
+        clicks: item.clicks || 0
+    }));
+
+    const byDevice = (data?.by_device || []).map(item => ({
+        label: item.device || "Unknown",
+        clicks: item.clicks || 0
+    }));
+
+    renderBarChart("countryChart", "country", byCountry, "Клики по странам", "rgba(37, 99, 235, 0.72)");
+    renderBarChart("cityChart", "city", byCity, "Клики по городам", "rgba(16, 185, 129, 0.72)");
+    renderBarChart("deviceChart", "device", byDevice, "Клики по устройствам", "rgba(249, 115, 22, 0.72)");
+    renderReferrers(data?.referrers || []);
+}
 
 async function registerUser() {
     const email = document.getElementById("regEmail").value.trim();
@@ -293,7 +488,6 @@ async function logoutUser() {
 }
 
 async function forgotPassword() {
-    console.log("forgotPassword clicked");
     const email = document.getElementById("loginEmail").value.trim();
     if (!email) {
         setStatus("authStatus", "Укажи email, на который зарегистрирован аккаунт.", "error");
@@ -307,8 +501,6 @@ async function forgotPassword() {
             body: JSON.stringify({ email })
         });
 
-        // FastAPI Users всегда отвечает «успешно отправлено» или 202,
-        // даже если такого email нет — это нормально.
         if (response.ok) {
             setStatus(
                 "authStatus",
@@ -323,9 +515,6 @@ async function forgotPassword() {
         setStatus("authStatus", `Ошибка соединения: ${e.message}`, "error");
     }
 }
-
-
-// ---------------------- API CALLS ----------------------
 
 async function createShortLink() {
     const original_url = document.getElementById("createOriginalUrl").value.trim();
@@ -360,7 +549,6 @@ async function createShortLink() {
 
         if (response.ok) {
             const shortLink = data.short_link;
-
             anchor.href = shortLink;
             anchor.textContent = shortLink;
             card.classList.remove("hidden");
@@ -401,13 +589,53 @@ async function getStats() {
             method: "GET",
             credentials: "include"
         });
+
         const data = await safeJson(response);
+
         if (response.ok) {
-            setStatus("apiStatus", data, "success");
+            renderStatsSummary(data);
+            setStatus("apiStatus", "Статистика по ссылке успешно загружена.", "success");
         } else {
+            document.getElementById("statsPanel").classList.add("hidden");
             setStatus("apiStatus", normalizeErrorText(data), "error");
         }
     } catch (e) {
+        document.getElementById("statsPanel").classList.add("hidden");
+        setStatus("apiStatus", `Ошибка соединения: ${e.message}`, "error");
+    }
+}
+
+async function getAdvancedStats() {
+    const shortCode = document.getElementById("advancedShortCode").value.trim();
+    const day = document.getElementById("advancedDay").value;
+
+    if (!shortCode) {
+        setStatus("apiStatus", "Укажи short_code для расширенной аналитики.", "error");
+        return;
+    }
+
+    if (!day) {
+        setStatus("apiStatus", "Укажи день для расширенной аналитики.", "error");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/links/${encodeURIComponent(shortCode)}/stats/day?day=${encodeURIComponent(day)}`, {
+            method: "GET",
+            credentials: "include"
+        });
+
+        const data = await safeJson(response);
+
+        if (response.ok) {
+            renderAdvancedAnalytics(data);
+            setStatus("apiStatus", "Расширенная аналитика за день успешно загружена.", "success");
+        } else {
+            document.getElementById("advancedPanel").classList.add("hidden");
+            setStatus("apiStatus", normalizeErrorText(data), "error");
+        }
+    } catch (e) {
+        document.getElementById("advancedPanel").classList.add("hidden");
         setStatus("apiStatus", `Ошибка соединения: ${e.message}`, "error");
     }
 }

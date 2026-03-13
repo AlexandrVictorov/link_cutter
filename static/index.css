@@ -22,7 +22,6 @@ body {
     color: var(--text);
 }
 
-/* Две «страницы»: auth сверху, функционал ниже */
 .page-root {
     min-height: 100vh;
     display: flex;
@@ -180,7 +179,7 @@ button {
 
 .forgot-row {
     margin-top: 20px;
-    text-align: left;     /* или right, как тебе нравится */
+    text-align: left;
 }
 
 .forgot-link {
@@ -194,7 +193,6 @@ button {
 .forgot-link:hover {
     color: #4338ca;
 }
-
 
 .status {
     margin-top: 16px;
@@ -415,8 +413,6 @@ button {
     display: none;
 }
 
-/* Капча на регистрации */
-
 .captcha-block {
     margin-top: 12px;
     display: grid;
@@ -444,4 +440,113 @@ button {
 
 .captcha-reload {
     white-space: nowrap;
+}
+
+.analytics-panel {
+    margin-top: 18px;
+    display: grid;
+    gap: 16px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+@media (max-width: 720px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stat-card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.stat-card-url {
+    grid-column: 1 / -1;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 22px;
+    line-height: 1.35;
+    font-weight: 800;
+    color: #0f172a;
+    word-break: break-word;
+}
+
+.stat-link {
+    display: inline-block;
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 700;
+    color: #1d4ed8;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.stat-link:hover {
+    text-decoration: underline;
+}
+
+.chart-card,
+.sources-card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    background: #ffffff;
+}
+
+.chart-title {
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.chart-card canvas {
+    width: 100% !important;
+    height: 320px !important;
+}
+
+.sources-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+}
+
+.source-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: #f8fafc;
+}
+
+.source-name {
+    font-weight: 700;
+    color: #1f2937;
+    word-break: break-word;
+}
+
+.source-count {
+    flex-shrink: 0;
+    color: #475569;
+    font-weight: 800;
 }
