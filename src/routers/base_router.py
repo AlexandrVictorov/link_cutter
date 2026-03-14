@@ -10,6 +10,7 @@ from models.models import User, Link_click
 from src.auth.auth import current_optional_user, current_active_user
 from database import get_db, redis_cache
 from datetime import datetime
+from datetime import date as DateType
 
 """
 Создание / удаление / изменение / получение информации по короткой ссылке:
@@ -99,6 +100,6 @@ async def stat(short_code: str, db: AsyncSession = Depends(get_db), user: User =
     return await get_statistic(db, short_code, user)
 
 
-@router.get("/links/{short_code}/stats/regions?day=YYYY-MM-DD")
-async def regions(day, short_code: str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+@router.get("/links/{short_code}/stats/regions")
+async def regions(day: DateType, short_code: str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
     return await get_regions(day, db, short_code, user)
