@@ -620,7 +620,7 @@ async function getAdvancedStats() {
     }
 
     try {
-        const response = await fetch(`/links/${encodeURIComponent(shortCode)}/stats/day?day=${encodeURIComponent(day)}`, {
+        const response = await fetch(`/links/${encodeURIComponent(shortCode)}/stats/regions?day=${encodeURIComponent(day)}`, {
             method: "GET",
             credentials: "include"
         });
