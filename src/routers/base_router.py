@@ -37,14 +37,14 @@ async def create(request: Request, body: LinkCreateRequest, db: AsyncSession = D
         if not result:
             raise HTTPException(status_code=500, detail="Failed to create link")
             
-        return {"short_link": f"{request.base_url}links/{result}"}
+        return {"short_link": f"https://links/{result}"}
         
     else:
         result = await create_custom_link(db, url, alias, user_id=user_id)
         if not result:
             raise HTTPException(status_code=400, detail="This alias is already taken")
             
-        return {"short_link": f"{request.base_url}links/{alias}"}
+        return {"short_link": f"https://links/{alias}"}
 
     
 @router.get("/links/{short_code}")

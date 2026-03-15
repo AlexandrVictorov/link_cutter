@@ -5,11 +5,11 @@
 Для удобства тестирования и наглядности с помощью GPT накидал простую веб страницу: https://www.scraftil.ru/
 ## Основные возможности
 
-- Регистрация и авторизация пользователей
+- Регистрация и авторизация пользователей с каптчей
 - Создание коротких ссылок
 - Пользовательский alias для ссылки
 - Поиск ссылок по original URL
-- Просмотр статистики по short code
+- Просмотр статистики по short code и расширенной статистики с разбивкой по странам, городам, устройствам
 - Удаление ссылок авторизованным пользователем
 - Назначение времени удаления ссылки
 - Замена short code
@@ -96,6 +96,7 @@ curl -X POST https://www.scraftil.ru/links   -H "Content-Type: application/json"
     "length": 6
   }'
 ```
+Также доступно добавление даты удаления ссылки.
 
 ### Статистика по ссылке
 
@@ -108,10 +109,9 @@ curl https://www.scraftil.ru/links/my-link/stats
 ```bash
 curl "https://www.scraftil.ru/links/search?original_url=https://example.com/very/long/url"
 ```
+Дополнительно есть эндпоинты для каптчи и сброса пароля по email.
 
 ## База данных
-
-Дополнительно есть эндпоинты для каптчи и сброса пароля по email.
 
 Проект использует PostgreSQL.
 
@@ -119,6 +119,7 @@ curl "https://www.scraftil.ru/links/search?original_url=https://example.com/very
 
 - `users` — пользователи
 - `links` — короткие ссылки
+- `link_clicks` — реализовал дополнительно для сбора статистики по кликам
 
 ## Интерфейс
 
@@ -127,3 +128,10 @@ curl "https://www.scraftil.ru/links/search?original_url=https://example.com/very
 ```
 https://www.scraftil.ru/
 ```
+## Тесты
+bash
+ENV_FILE=.env-non-dev pytest -q;
+
+Информация по покрытию есть в /htmlcov
+
+## В /static и /templates сгенерированные файлы фронтенда для визуализации сервиса.
